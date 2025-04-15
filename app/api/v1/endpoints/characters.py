@@ -2,16 +2,15 @@ from typing import Any, List
 
 from fastapi import APIRouter, HTTPException, status
 from loguru import logger
+from ulid import ULID as _python_ULID
 
 from app.api.deps import DB
 from app.crud.character import character_crud
-from app.models.types import ULIDType
 from app.schemas.character import (
     Character,
     CharacterCreate,
     CharacterUpdate,
 )
-from app.schemas.ulid import ULID
 
 router = APIRouter()
 
@@ -63,10 +62,13 @@ async def read_character(
     db: DB,
     character_id: str,
     # character_id: ULID,
+    # character_id: UUID,
 ) -> Any:
     """
     Get character by ID.
     """
+
+    character = await character_crud.get(db, id=_python_ULID.from_str(character_id))
     character = await character_crud.get(db, id=character_id)
     if not character:
         raise HTTPException(
