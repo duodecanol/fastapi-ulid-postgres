@@ -10,8 +10,6 @@ from sqlalchemy.sql.type_api import Emulated, TypeEngine, UserDefinedType
 from sqlalchemy_utils.types.scalar_coercible import ScalarCoercible
 from ulid import ULID as _python_ULID
 
-_UUID_RETURN = TypeVar("_UUID_RETURN", str, _python_ULID)
-
 
 class _CoerceULIDMixin:
     @staticmethod
@@ -42,7 +40,10 @@ class _CoerceULIDMixin:
         return value
 
 
-class Ulid(Emulated, TypeEngine[_UUID_RETURN]):
+_ULID_RETURN = TypeVar("_ULID_RETURN", str, _python_ULID)
+
+
+class Ulid(Emulated, TypeEngine[_ULID_RETURN]):
     __visit_name__ = "ulid"
 
     collation: Optional[str] = None
@@ -174,7 +175,7 @@ class Ulid(Emulated, TypeEngine[_UUID_RETURN]):
                 return process
 
     def compile(self, dialect=None):
-        return "ulid"
+        return "ulid"  # Not working
 
 
 class UserDefinedULIDType(_CoerceULIDMixin, UserDefinedType):
