@@ -214,37 +214,35 @@ class UserDefinedULIDType(_CoerceULIDMixin, UserDefinedType):
 
 class DifferedULIDType(_CoerceULIDMixin, ScalarCoercible, types.TypeDecorator):
     """
-    Stores a ULID in the database as a native UUID column type
-    but can use TEXT if needed.
-    ::
-        from .lib.sqlalchemy_types import ULIDType
-        class User(Base):
-            __tablename__ = 'user'
-            # Pass `force_text=True` to fallback TEXT instead of UUID column
-            id = sa.Column(ULIDType(force_text=False), primary_key=True)
+    Stores a ULID in the database as a native column type
     """
 
     cache_ok = True
 
     # impl = postgresql.UUID(as_uuid=True)
     # impl = postgresql.CHAR(26)
-    impl = postgresql.BYTEA(16)
+    # impl = postgresql.BYTEA(16)
 
     python_type = _python_ULID
 
-    def __init__(self, force_text=False, **kwargs):
-        """
-        :param force_text: Store ULID as TEXT instead of UUID.
-        """
-        self.force_text = force_text
+    def __init__(self, column_type: Literal["uuid", "byte", "char"] = "byte", **kwargs):
+        self.column_type = column_type
+        match column_type:
+            case "uuid":
+                self.impl = postgresql.UUID(as_uuid=True)
+            case "byte":
+                self.impl = postgresql.BYTEA(16)
+            case "char":
+                self.imp = postgresql.CHAR(26)
+            case _:
+                raise ValueError(f"Invalid param `column_type` [{column_type}]")
 
     def __repr__(self):
         return util.generic_repr(self)
 
     def load_dialect_impl(self, dialect):
-        if self.force_text:
+        if self.column_type == "char":
             return dialect.type_descriptor(types.UnicodeText)
-
         return dialect.type_descriptor(self.impl)
 
     def process_bind_param(self, value, dialect) -> bytes | None:
@@ -254,8 +252,13 @@ class DifferedULIDType(_CoerceULIDMixin, ScalarCoercible, types.TypeDecorator):
         if not isinstance(value, ulid.ULID):
             value = self._coerce(value)
 
-        # return str(value.to_uuid())
-        return value.bytes
+        match self.column_type:
+            case "uuid":
+                return str(value)
+            case "byte":
+                return value.bytes
+            case "char":
+                return str(value)
 
     def process_result_value(self, value, dialect) -> ulid.ULID | None:
         if value is None:
@@ -264,4 +267,5 @@ class DifferedULIDType(_CoerceULIDMixin, ScalarCoercible, types.TypeDecorator):
         return self._coerce(value)
 
 
-ULIDType = UserDefinedULIDType
+# ULIDType = UserDefinedULIDType
+ULIDType = DifferedULIDType

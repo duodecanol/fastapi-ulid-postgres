@@ -35,7 +35,7 @@ async def read_characters(
     return characters
 
 
-@router.post("/", response_model=Character)
+@router.post("/", response_model=Character, status_code=status.HTTP_201_CREATED)
 async def create_character(
     *,
     db: DB,
@@ -48,7 +48,7 @@ async def create_character(
     character = await character_crud.get_by_name(db, name=character_in.name)
     if character:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_409_CONFLICT,
             detail="A character with this name already exists",
         )
 
@@ -96,7 +96,7 @@ async def update_character(
             detail="Character not found",
         )
 
-    logger.info(f"{character.dispositions = }")
+    logger.info(f"{await character.awaitable_attrs.dispositions = }")
 
     # Check if name is being updated and if it already exists
     if character_in.name and character_in.name != character.name:

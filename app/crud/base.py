@@ -2,7 +2,7 @@ from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 
 from loguru import logger
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import Base
@@ -39,7 +39,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         Get multiple records.
         """
-        result = await db.execute(select(self.model).offset(skip).limit(limit))
+        result = await db.execute(
+            select(self.model).offset(skip).limit(limit).order_by(self.model.id)
+        )
         return result.scalars().all()
 
     async def create(self, db: AsyncSession, *, obj_in: CreateSchemaType) -> ModelType:
