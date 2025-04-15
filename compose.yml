@@ -1,0 +1,83 @@
+
+x-dbinfo-env: &x-dbinfo-env
+  POSTGRES_USER: ${POSTGRES_USER:-postgres}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+  POSTGRES_DB: ${POSTGRES_DB:-fastapi_ulid_postgres}
+
+x-shared-env: &x-shared-api-env
+  <<: *x-dbinfo-env
+  POSTGRES_SERVER: db
+  POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+
+
+
+services:
+  db:
+    # image: postgres:17
+    build:
+      dockerfile_inline: |
+        FROM postgres:17 AS pg
+
+        WORKDIR /root
+
+        RUN apt-get update && apt-get install -y wget curl
+
+
+        RUN wget https://github.com/pksunkara/pgx_ulid/releases/download/v0.2.0/pgx_ulid-v0.2.0-pg17-amd64-linux-gnu.deb
+        RUN dpkg -i pgx_ulid-v0.2.0-pg17-amd64-linux-gnu.deb
+
+        CMD ["postgres"]
+
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      <<: *x-dbinfo-env
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+
+  api:
+    image: duodecanol/fastapi_ulid_postgres:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    restart: unless-stopped
+    command: uv run python -m app.main
+
+    volumes:
+      - ./:/app/
+      - /app/.venv
+    ports:
+      - "8000:8000"
+    environment:
+      <<: *x-shared-api-env
+      SECRET_KEY: ${SECRET_KEY:-your-secret-key-here-change-in-production}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-11520}
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-[]}
+    depends_on:
+      db:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+
+
+  migrator:
+    image: duodecanol/fastapi_ulid_postgres:latest
+    restart: no
+    command: uv run alembic upgrade head
+    environment:
+      <<: *x-shared-api-env
+    depends_on:
+      db:
+        condition: service_healthy
+
+
+volumes:
+  postgres_data:
