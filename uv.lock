@@ -233,6 +233,19 @@ standard = [
 ]
 
 [[package]]
+name = "fastapi-pagination"
+version = "0.12.34"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pydantic" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/83/4d/6e695098ce33b3394cf26b335ca4ec6407f9421cfdf9ad6a38775580db21/fastapi_pagination-0.12.34.tar.gz", hash = "sha256:05ee8c0bc572072160f7f30900bfd87869e1880c87bc5797922fec2e49e65f11", size = 26901 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/72/f3/a0a1e7efd88dba07743665d1f6f88008c9a1e174458581ecaa53b8699a7c/fastapi_pagination-0.12.34-py3-none-any.whl", hash = "sha256:089d1078aae1784395b4dbd923d0c8246641ddcc291c5ec6d92a30edb92ecbdd", size = 43308 },
+]
+
+[[package]]
 name = "fastapi-ulid-postgres"
 version = "0.1.0"
 source = { editable = "." }
@@ -240,6 +253,7 @@ dependencies = [
     { name = "alembic" },
     { name = "asyncpg" },
     { name = "fastapi", extra = ["standard"] },
+    { name = "fastapi-pagination" },
     { name = "loguru" },
     { name = "passlib" },
     { name = "pydantic-settings" },
@@ -266,6 +280,7 @@ requires-dist = [
     { name = "alembic", specifier = ">=1.15.1" },
     { name = "asyncpg", specifier = ">=0.30.0" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.11" },
+    { name = "fastapi-pagination", specifier = ">=0.12.34" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "passlib", specifier = ">=1.7.4" },
     { name = "pydantic-settings", specifier = ">=2.8.1" },

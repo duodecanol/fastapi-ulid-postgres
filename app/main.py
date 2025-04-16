@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi_pagination import add_pagination
 
 from app.api.v1.router import api_router as api_v1_router
 from app.core.config import settings
@@ -21,6 +22,9 @@ def get_app() -> FastAPI:
             allow_methods=["*"],
             allow_headers=["*"],
         )
+
+    # Add pagination
+    add_pagination(app)
 
     # Include routers
     app.include_router(api_v1_router, prefix=settings.API_V1_STR)

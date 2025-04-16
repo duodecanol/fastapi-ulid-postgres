@@ -2,6 +2,8 @@ from typing import Annotated, Any, List
 
 from fastapi import APIRouter, HTTPException, status
 from fastapi.params import Path
+from fastapi_pagination import LimitOffsetPage, Page
+from fastapi_pagination.cursor import CursorPage
 from loguru import logger
 from ulid import ULID as _python_ULID
 
@@ -17,23 +19,22 @@ from app.schemas.ulid import ULID as _pydantic_ULID
 router = APIRouter()
 
 
-@router.get("/", response_model=List[Character])
+@router.get("/")
 async def read_characters(
     *,
     db: DB,
-    skip: int = 0,
-    limit: int = 100,
-    name: str = None,
-) -> Any:
+) -> Page[Character]:
     """
     Retrieve characters.
     """
-    if name:
-        characters = await character_crud.get_by_name(
-            db, name=name, skip=skip, limit=limit
-        )
-    else:
-        characters = await character_crud.get_multi(db, skip=skip, limit=limit)
+    import sqlalchemy as sa
+    from fastapi_pagination.ext.sqlalchemy import paginate
+
+    from app.models.character import Character as CharacterModel
+
+    characters = await paginate(
+        db, sa.select(CharacterModel).order_by(CharacterModel.id)
+    )
     return characters
 
 
