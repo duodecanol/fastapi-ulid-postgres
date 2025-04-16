@@ -11,7 +11,7 @@ from sqlalchemy_utils.types.scalar_coercible import ScalarCoercible
 from ulid import ULID as _python_ULID
 
 
-class _CoerceULIDMixin:
+class _ULIDScalarCoercible(ScalarCoercible):
     @staticmethod
     def _coerce(value) -> ulid.ULID | None:
         if not value:
@@ -178,7 +178,7 @@ class Ulid(Emulated, TypeEngine[_ULID_RETURN]):
         return "ulid"  # Not working
 
 
-class UserDefinedULIDType(_CoerceULIDMixin, UserDefinedType):
+class UserDefinedULIDType(_ULIDScalarCoercible, UserDefinedType):
     cache_ok = True
 
     def __init__(self):
@@ -187,7 +187,8 @@ class UserDefinedULIDType(_CoerceULIDMixin, UserDefinedType):
     def __repr__(self):
         return super().__repr__()
 
-    def get_col_spec(self, **kw):
+    def get_col_spec(self, **kw) -> str:
+        """DB의 column type 명칭을 제공한다"""
         return "ulid"
 
     def bind_processor(self, dialect):
@@ -213,7 +214,7 @@ class UserDefinedULIDType(_CoerceULIDMixin, UserDefinedType):
         return process
 
 
-class DifferedULIDType(_CoerceULIDMixin, ScalarCoercible, types.TypeDecorator):
+class DifferedULIDType(_ULIDScalarCoercible, types.TypeDecorator):
     """
     Stores a ULID in the database as a native column type
     """
@@ -223,6 +224,7 @@ class DifferedULIDType(_CoerceULIDMixin, ScalarCoercible, types.TypeDecorator):
     # impl = postgresql.UUID(as_uuid=True)
     # impl = postgresql.CHAR(26)
     # impl = postgresql.BYTEA(16)
+    impl: postgresql.UUID | postgresql.CHAR | postgresql.BYTEA
 
     python_type = _python_ULID
 
@@ -268,5 +270,5 @@ class DifferedULIDType(_CoerceULIDMixin, ScalarCoercible, types.TypeDecorator):
         return self._coerce(value)
 
 
-# ULIDType = UserDefinedULIDType
-ULIDType = DifferedULIDType
+ULIDType = UserDefinedULIDType
+# ULIDType = DifferedULIDType
