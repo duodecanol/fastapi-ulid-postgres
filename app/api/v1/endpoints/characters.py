@@ -1,6 +1,7 @@
-from typing import Any, List
+from typing import Annotated, Any, List
 
 from fastapi import APIRouter, HTTPException, status
+from fastapi.params import Path
 from loguru import logger
 from ulid import ULID as _python_ULID
 
@@ -11,6 +12,7 @@ from app.schemas.character import (
     CharacterCreate,
     CharacterUpdate,
 )
+from app.schemas.ulid import ULID as _pydantic_ULID
 
 router = APIRouter()
 
@@ -60,15 +62,15 @@ async def create_character(
 async def read_character(
     *,
     db: DB,
-    character_id: str,
-    # character_id: ULID,
-    # character_id: UUID,
+    character_id: _python_ULID = Path(),
+    # character_id: str,
 ) -> Any:
     """
     Get character by ID.
     """
-
-    character = await character_crud.get(db, id=_python_ULID.from_str(character_id))
+    logger.debug(f"{type(character_id) = }")
+    logger.debug(f"{repr(character_id) = }")
+    # character = await character_crud.get(db, id=_python_ULID.from_str(character_id))
     character = await character_crud.get(db, id=character_id)
     if not character:
         raise HTTPException(
@@ -82,7 +84,7 @@ async def read_character(
 async def update_character(
     *,
     db: DB,
-    character_id: str,
+    character_id: Annotated[_python_ULID, Path()],
     character_in: CharacterUpdate,
 ) -> Any:
     """
@@ -116,7 +118,7 @@ async def update_character(
 async def delete_character(
     *,
     db: DB,
-    character_id: str,
+    character_id: Annotated[_python_ULID, Path()],
 ) -> None:
     """
     Delete a character.

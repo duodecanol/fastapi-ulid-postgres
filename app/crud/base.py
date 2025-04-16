@@ -4,9 +4,9 @@ from loguru import logger
 from pydantic import BaseModel
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from ulid import ULID as _python_ULID
 
 from app.core.database import Base
-from app.schemas.ulid import UlidType
 from app.utils.datetime import utc_now_aware
 
 ModelType = TypeVar("ModelType", bound=Base)
@@ -26,7 +26,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         self.model = model
 
-    async def get(self, db: AsyncSession, id: UlidType) -> Optional[ModelType]:
+    async def get(self, db: AsyncSession, id: _python_ULID) -> Optional[ModelType]:
         """
         Get a single record by ID.
         """
@@ -86,7 +86,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         await db.refresh(db_obj)
         return db_obj
 
-    async def remove(self, db: AsyncSession, *, id: UlidType) -> ModelType:
+    async def remove(self, db: AsyncSession, *, id: _python_ULID) -> ModelType:
         """
         Delete a record.
         """
@@ -95,7 +95,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         await db.commit()
         return obj
 
-    async def delete(self, db: AsyncSession, *, id: UlidType) -> None:
+    async def delete(self, db: AsyncSession, *, id: _python_ULID) -> None:
         """
         Delete a record.
         """
@@ -106,7 +106,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         logger.info(f"=== SUCCESSFUL DELETE {type(obj).__name__}")
 
-    async def quasi_delete(self, db: AsyncSession, *, id: UlidType) -> None:
+    async def quasi_delete(self, db: AsyncSession, *, id: _python_ULID) -> None:
         """
         Quasi-delete a record.
         """
