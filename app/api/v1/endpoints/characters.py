@@ -4,9 +4,9 @@ from fastapi import APIRouter, HTTPException, status
 from fastapi.params import Path, Query
 from fastapi_filter import FilterDepends, with_prefix
 from fastapi_filter.contrib.sqlalchemy import Filter
-from fastapi_pagination import LimitOffsetPage, Page
 from fastapi_pagination.cursor import CursorPage
 from fastapi_pagination.ext.sqlalchemy import paginate
+from fastapi_pagination.links import Page
 from loguru import logger
 from pydantic import Field
 from ulid import ULID as _python_ULID
@@ -44,11 +44,31 @@ router = APIRouter()
 
 
 @router.get("/")
-async def read_characters(
+async def read_characters_page(
     *,
     filter: CharacterFilter = FilterDepends(CharacterFilter),
     db: DB,
 ) -> Page[Character]:
+    """
+    Retrieve characters.
+    """
+    import sqlalchemy as sa
+
+    query = sa.select(CharacterModel)
+    query = filter.filter(query)
+    query = filter.sort(query)
+    query = filter.sort(query)
+
+    characters = await paginate(db, query)
+    return characters
+
+
+@router.get("/cursor")
+async def read_characters_cursor(
+    *,
+    filter: CharacterFilter = FilterDepends(CharacterFilter),
+    db: DB,
+) -> CursorPage[Character]:
     """
     Retrieve characters.
     """

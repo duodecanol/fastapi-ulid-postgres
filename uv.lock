@@ -263,6 +263,12 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/72/f3/a0a1e7efd88dba07743665d1f6f88008c9a1e174458581ecaa53b8699a7c/fastapi_pagination-0.12.34-py3-none-any.whl", hash = "sha256:089d1078aae1784395b4dbd923d0c8246641ddcc291c5ec6d92a30edb92ecbdd", size = 43308 },
 ]
 
+[package.optional-dependencies]
+sqlalchemy = [
+    { name = "sqlakeyset" },
+    { name = "sqlalchemy" },
+]
+
 [[package]]
 name = "fastapi-ulid-postgres"
 version = "0.1.0"
@@ -272,7 +278,7 @@ dependencies = [
     { name = "asyncpg" },
     { name = "fastapi", extra = ["standard"] },
     { name = "fastapi-filter", extra = ["sqlalchemy"] },
-    { name = "fastapi-pagination" },
+    { name = "fastapi-pagination", extra = ["sqlalchemy"] },
     { name = "loguru" },
     { name = "passlib" },
     { name = "pydantic-settings" },
@@ -300,7 +306,7 @@ requires-dist = [
     { name = "asyncpg", specifier = ">=0.30.0" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.11" },
     { name = "fastapi-filter", extras = ["sqlalchemy"], specifier = ">=2.0.1" },
-    { name = "fastapi-pagination", specifier = ">=0.12.34" },
+    { name = "fastapi-pagination", extras = ["sqlalchemy"], specifier = ">=0.12.34" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "passlib", specifier = ">=1.7.4" },
     { name = "pydantic-settings", specifier = ">=2.8.1" },
@@ -753,6 +759,18 @@ wheels = [
 ]
 
 [[package]]
+name = "python-dateutil"
+version = "2.9.0.post0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "six" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/66/c0/0c8b6ad9f17a802ee498c46e004a0eb49bc148f2fd230864601a86dcf6db/python-dateutil-2.9.0.post0.tar.gz", hash = "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3", size = 342432 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ec/57/56b9bcc3c9c6a792fcbaf139543cee77261f3651ca9da0c93f5c1221264b/python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427", size = 229892 },
+]
+
+[[package]]
 name = "python-dotenv"
 version = "1.0.1"
 source = { registry = "https://pypi.org/simple" }
@@ -908,6 +926,21 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a2/87/a6771e1546d97e7e041b6ae58d80074f81b7d5121207425c964ddf5cfdbd/sniffio-1.3.1.tar.gz", hash = "sha256:f4324edc670a0f49750a81b895f35c3adb843cca46f0530f79fc1babb23789dc", size = 20372 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e9/44/75a9c9421471a6c4805dbf2356f7c181a29c1879239abab1ea2cc8f38b40/sniffio-1.3.1-py3-none-any.whl", hash = "sha256:2f6da418d1f1e0fddd844478f41680e794e6051915791a034ff65e5f100525a2", size = 10235 },
+]
+
+[[package]]
+name = "sqlakeyset"
+version = "2.0.1739066250"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "packaging" },
+    { name = "python-dateutil" },
+    { name = "sqlalchemy" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d0/87/0b2782a09c40787cf6f54eb3881daa07ecf5d4540a3fa509e5c7ee099cf0/sqlakeyset-2.0.1739066250.tar.gz", hash = "sha256:7569887677789ad9633762ceb32126765eaa262c42a4e35763c2728614d58c43", size = 111084 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/56/5e/f078322cb704f052adb32453100fe4bd8260c4c4a0476355a704be822243/sqlakeyset-2.0.1739066250-py3-none-any.whl", hash = "sha256:5b2cb8fb90f41edc051626842546abdc79a184d03d262ae2d0ce5ef08edb0b38", size = 26866 },
 ]
 
 [[package]]
