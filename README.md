@@ -94,7 +94,8 @@ The project implements a custom Pydantic model for ULID validation in `app/schem
 2. Install dependencies:
    ```
    uv venv
-   uv pip install -e .
+   source .venv/bin/activate
+   uv sync
    ```
 3. Set up the database:
    ```
@@ -102,7 +103,7 @@ The project implements a custom Pydantic model for ULID validation in `app/schem
    ```
 4. Run the application:
    ```
-   uvicorn app.main:get_app --reload
+   uv run python -m app.main
    ```
 
 #### Using Docker Compose
