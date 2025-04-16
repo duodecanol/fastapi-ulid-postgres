@@ -1,14 +1,19 @@
-from typing import Annotated, Any, List
+from typing import Annotated, Any, List, Optional
 
 from fastapi import APIRouter, HTTPException, status
-from fastapi.params import Path
+from fastapi.params import Path, Query
+from fastapi_filter import FilterDepends, with_prefix
+from fastapi_filter.contrib.sqlalchemy import Filter
 from fastapi_pagination import LimitOffsetPage, Page
 from fastapi_pagination.cursor import CursorPage
+from fastapi_pagination.ext.sqlalchemy import paginate
 from loguru import logger
+from pydantic import Field
 from ulid import ULID as _python_ULID
 
 from app.api.deps import DB
 from app.crud.character import character_crud
+from app.models.character import Character as CharacterModel
 from app.schemas.character import (
     Character,
     CharacterCreate,
@@ -16,25 +21,45 @@ from app.schemas.character import (
 )
 from app.schemas.ulid import ULID as _pydantic_ULID
 
+
+class CharacterFilter(Filter):
+    name: Optional[str] = None
+    custom_order_by: Optional[list[str]] = Field(
+        Query(
+            None,
+            description="Input order by fields. + (asc), _ (desc)",
+            example="+created_at,-updated_at",
+        ),
+    )
+    custom_search: Optional[str] = None
+
+    class Constants(Filter.Constants):
+        model = CharacterModel
+        ordering_field_name = "custom_order_by"
+        search_field_name = "custom_search"
+        search_model_fields = ["name", "default_outfit"]
+
+
 router = APIRouter()
 
 
 @router.get("/")
 async def read_characters(
     *,
+    filter: CharacterFilter = FilterDepends(CharacterFilter),
     db: DB,
 ) -> Page[Character]:
     """
     Retrieve characters.
     """
     import sqlalchemy as sa
-    from fastapi_pagination.ext.sqlalchemy import paginate
 
-    from app.models.character import Character as CharacterModel
+    query = sa.select(CharacterModel)
+    query = filter.filter(query)
+    query = filter.sort(query)
+    query = filter.sort(query)
 
-    characters = await paginate(
-        db, sa.select(CharacterModel).order_by(CharacterModel.id)
-    )
+    characters = await paginate(db, query)
     return characters
 
 
