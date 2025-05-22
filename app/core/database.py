@@ -1,8 +1,8 @@
 import sqlalchemy as sa
+import sqlalchemy.sql.schema as sa_schema
 from sqlalchemy.ext.asyncio import AsyncAttrs, AsyncSession, create_async_engine
 from sqlalchemy.orm import (
     DeclarativeBase,
-    declarative_base,
     declared_attr,
     sessionmaker,
 )
@@ -19,7 +19,17 @@ SessionLocal = sessionmaker(
     engine, class_=AsyncSession, expire_on_commit=False, autoflush=False
 )
 
-meta = sa.MetaData()
+# https://til.cybertec-postgresql.com/post/2019-09-02-Postgres-Constraint-Naming-Convention/
+postgres_naming_convention: sa_schema._NamingSchemaTD = {
+    "pk": "%(table_name)s_pkey",
+    "uq": "%(table_name)s_%(column_0_N_name)s_key",
+    "ix": "%(table_name)s_%(column_0_N_name)s_idx",
+    "ck": "%(table_name)s_%(constraint_name)s_check",
+    "fk": "%(table_name)s_%(column_0_name)s_%(referred_table_name)s_fkey",
+}
+
+
+meta = sa.MetaData(naming_convention=postgres_naming_convention)
 
 
 class Base(AsyncAttrs, DeclarativeBase):
